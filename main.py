@@ -481,6 +481,10 @@ async def ping(ctx):
         if len(q.queue) > 0:
             print('g')
             pinged_user = q.queue[0]
+            if pinged_user.nick is not None:
+                name = pinged_user.nick
+            else:
+                name = pinged_user.name
             await ctx.send(f'Pinging next user via DMs and chat! '
                            f"{pinged_user.mention}, you're up to play! "
                            f"Please type !accept in chat within "
@@ -506,16 +510,22 @@ async def ping(ctx):
                 print(len(q.queue))
                 if q is not None:
                     print('L')
-                    await ctx.send(f'{pinged_user.name} accepted the ping! Updating queue...')
+                    await ctx.send(f'{name} accepted the ping! Updating queue...')
                     for i in range(len(q.queue)):
                         print(i)
-                        print(q.queue[i])
+                        print(q.queue)
                         print(pinged_user)
-                        if q.queue[i] == pinged_user:
-                            print('k')
-                            q.queue.remove(q.queue[i])
+                        if len(q.queue) == 1:
+                            if q.queue[0] == pinged_user:
+                                print('fff')
+                                q.queue.remove(q.queue[0])
+                        else:
+                            if q.queue[i] == pinged_user:
+                                print('k')
+                                q.queue.remove(q.queue[i])
                     ping_active = False
                     pinged_user = None
+                    return
             except asyncio.TimeoutError:
                 print('o')
                 if ping_active and not q.is_empty():
@@ -528,7 +538,7 @@ async def ping(ctx):
                         for i in range(len(q.queue)):
                             if q.queue[i] == pinged_user:
                                 q.queue.remove(q.queue[i])
-                                await ctx.send(f'{pinged_user.name} joined the channel while pinged.'
+                                await ctx.send(f'{name} joined the channel while pinged.'
                                                f' Removed from queue.')
                                 ping_active = False
                                 pinged_user = None
@@ -558,7 +568,7 @@ async def ping(ctx):
                         ping_active = False
                         pinged_user = None
 
-                        return await ctx.send(f'{pinged_user.name} never accepted the ping after two attempts.'
+                        return await ctx.send(f'{name} never accepted the ping after two attempts.'
                                               f' Kicked them from queue.')
 
                 else:
